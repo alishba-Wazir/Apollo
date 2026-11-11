@@ -1,0 +1,257 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Branch {
+  id              String   @id @default(uuid())
+  name            String
+  city            String   // Karachi, Islamabad, Lahore, To be confirmed
+  area            String   @default("")
+  address         String   @default("")
+  status          String   @default("ACTIVE") // ACTIVE, COMING_SOON
+  latitude        Float?
+  longitude       Float?
+  type            String   // men, women, mixed
+  hours           String   // e.g. "06:00 - 23:00"
+  whatsappNumber  String
+  capacity        Int      @default(300)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  users           User[]
+  members         Member[]
+  visits          Visit[]
+  trainers        Trainer[]
+  equipment       Equipment[]
+  settings        BranchSettings?
+  payments        Payment[]
+  leadTours       LeadTour[]
+
+  @@map("branches")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  role          String   // ADMIN, BRANCH_MANAGER
+  branchId      String?  // null for Admin, or branch ID for Branch Manager
+  email         String   @unique
+  passwordHash  String
+  name          String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  branch        Branch?  @relation(fields: [branchId], references: [id])
+  auditLogs     AuditLog[]
+  approvedMessages Message[]
+
+  @@map("users")
+}
+
+model Member {
+  id              String   @id @default(uuid())
+  branchId        String
+  name            String
+  phone           String
+  goal            String   // Strength, Hypertrophy, Fat Loss, Endurance, Recovery
+  studio          String   // Studio Alpha, Strength Forge, Cardio Loft, Olympic Arena
+  trainerId       String?
+  planId          String   // ELITE, PRO, STANDARD
+  status          String   @default("ACTIVE") // ACTIVE, FROZEN, CANCELLED
+  frozenUntil     DateTime?
+  expirationDate  DateTime?
+  whatsappOptIn   Boolean  @default(true)
+  optInAt         DateTime @default(now())
+  optInMethod     String   @default("PAPER_FORM") // PAPER_FORM, DESK_POS, MOBILE_APP
+  biometricConsent Boolean @default(true)
+  cnic            String   @default("")
+  language        String   @default("en") // en, ur (Roman Urdu)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  branch          Branch   @relation(fields: [branchId], references: [id])
+  trainer         Trainer? @relation(fields: [trainerId], references: [id])
+  visits          Visit[]
+  bookings        Booking[]
+  winbackCases    WinbackCase[]
+  payments        Payment[]
+
+  @@map("members")
+}
+
+model Visit {
+  id          String   @id @default(uuid())
+  memberId    String
+  branchId    String
+  checkedInAt DateTime @default(now())
+
+  member      Member   @relation(fields: [memberId], references: [id])
+  branch      Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("visits")
+}
+
+model Trainer {
+  id                String   @id @default(uuid())
+  branchId          String
+  name              String
+  phone             String
+  certificateExpiry DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  branch            Branch   @relation(fields: [branchId], references: [id])
+  shifts            TrainerShift[]
+  bookings          Booking[]
+  members           Member[]
+
+  @@map("trainers")
+}
+
+model TrainerShift {
+  id          String   @id @default(uuid())
+  trainerId   String
+  startsAt    DateTime
+  endsAt      DateTime
+  checkedInAt DateTime?
+
+  trainer     Trainer  @relation(fields: [trainerId], references: [id])
+
+  @@map("trainer_shifts")
+}
+
+model Booking {
+  id          String   @id @default(uuid())
+  memberId    String
+  trainerId   String
+  startsAt    DateTime
+  status      String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+
+  member      Member   @relation(fields: [memberId], references: [id])
+  trainer     Trainer  @relation(fields: [trainerId], references: [id])
+
+  @@map("bookings")
+}
+
+model WinbackCase {
+  id                  String   @id @default(uuid())
+  memberId            String
+  flaggedAt           DateTime @default(now())
+  daysAway            Int
+  normalVisitsPerWeek Float
+  status              String   @default("OPEN") // OPEN, CONTACTED, BROUGHT_BACK, CLOSED
+  resolvedAt          DateTime?
+
+  member              Member   @relation(fields: [memberId], references: [id])
+  messages            Message[]
+
+  @@map("winback_cases")
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  caseId      String
+  direction   String   // OUTBOUND, INBOUND
+  body        String
+  language    String   @default("en") // en, ur
+  status      String   @default("draft") // draft, approved, sent, delivered, read, failed
+  approvedBy  String?
+  sentAt      DateTime?
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  winbackCase WinbackCase @relation(fields: [caseId], references: [id])
+  approver    User?       @relation(fields: [approvedBy], references: [id])
+  replyTags   ReplyTag[]
+
+  @@map("messages")
+}
+
+model ReplyTag {
+  id            String   @id @default(uuid())
+  messageId     String
+  reason        String   // work, boredom, travel, cost, injury, other
+  handedToHuman Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  message       Message  @relation(fields: [messageId], references: [id])
+
+  @@map("reply_tags")
+}
+
+model Equipment {
+  id          String   @id @default(uuid())
+  branchId    String
+  name        String
+  category    String   @default("STRENGTH") // STRENGTH, CARDIO, CABLE, RECOVERY
+  warrantyEnd DateTime
+  repairCost  Float    @default(0)
+  status      String   @default("OPERATIONAL") // OPERATIONAL, ATTENTION, MAINTENANCE
+
+  branch      Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("equipment")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  role      String   // ADMIN, BRANCH_MANAGER
+  action    String   // LOGIN, LOGOUT, APPROVE_SEND, UPDATE_SETTINGS, SWITCH_BRANCH, REASSIGN_TRAINER
+  target    String   // e.g. "auth", "branch:seaview", "member:id", "message:id"
+  details   String?  // JSON string or human description
+  at        DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("audit_log")
+}
+
+model BranchSettings {
+  id                String   @id @default(uuid())
+  branchId          String   @unique
+  quietHoursStart   String   @default("22:00") // HH:MM
+  quietHoursEnd     String   @default("07:00") // HH:MM
+  prayerTimes       String   @default("{\"fajr\":\"05:30\",\"dhuhr\":\"12:30\",\"asr\":\"15:45\",\"maghrib\":\"17:45\",\"isha\":\"19:15\"}")
+  autoSendEnabled   Boolean  @default(false)
+
+  branch            Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("settings")
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  memberId    String
+  branchId    String
+  amountPKR   Float
+  method      String   // IBFT, CASH, CARD, RAAST
+  bankName    String?  // Meezan Bank, HBL, Bank Alfalah, Raast
+  tid         String?  // Transaction reference / TID
+  status      String   @default("APPROVED") // APPROVED, PENDING, REJECTED
+  description String   // e.g. "Monthly Membership Dues", "Personal Training Pack", "Whey Protein Bar"
+  createdAt   DateTime @default(now())
+
+  member      Member   @relation(fields: [memberId], references: [id])
+  branch      Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("payments")
+}
+
+model LeadTour {
+  id          String   @id @default(uuid())
+  branchId    String
+  name        String
+  phone       String
+  stage       String   // ENQUIRY, TOUR_BOOKED, TRIAL_ATTENDED, JOINED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  branch      Branch   @relation(fields: [branchId], references: [id])
+
+  @@map("lead_tours")
+}
