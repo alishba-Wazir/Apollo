@@ -321,67 +321,51 @@ export function SubscriptionDonutChart({
                 );
               })}
             </svg>
-
-            {/* CENTER DONUT HOLE SUMMARY (Clean Active Count) */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2 pointer-events-none transition-all duration-200">
-              <span className="text-[11px] font-black uppercase tracking-widest text-[var(--accent)] drop-shadow-xs">
-                Total Active
-              </span>
-              <div className="kpi-value text-[26px] leading-tight text-[var(--text)] font-black my-0.5 font-mono">
-                {totalMembersCount.toLocaleString()}
-              </div>
-              <span className="text-[11px] font-semibold text-[var(--muted)] flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
-                Active Members
-              </span>
-            </div>
           </div>
 
-          {/* DEDICATED TELEMETRY CARD: EXACT TEXT AND NUMBER BELOW THE DONUT */}
-          {activeDisplaySlice && (
-            <div
-              key={activeDisplaySlice.id}
-              className="w-[195px] py-2 px-3 rounded-2xl bg-[var(--menu-hover)]/90 border border-[var(--line)] shadow-sm flex flex-col items-center text-center transition-all duration-200 backdrop-blur-sm"
-              style={{
-                borderColor:
-                  activeDisplaySlice.color === "#FFFFFF"
-                    ? "rgba(255, 255, 255, 0.4)"
-                    : `${activeDisplaySlice.color}60`,
-              }}
-            >
-              {/* Badge: e.g. PLUS (3 MONTHS) */}
-              <span
-                className="inline-block text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full mb-1 truncate max-w-[170px] shadow-xs"
-                style={{
-                  background: activeDisplaySlice.color === "#FFFFFF" ? "#FFFFFF" : activeDisplaySlice.color,
-                  color:
-                    activeDisplaySlice.color === "#FFFFFF" ||
-                    activeDisplaySlice.color === "#FFD60A" ||
-                    activeDisplaySlice.color === "#FBBF24" ||
-                    activeDisplaySlice.color === "#F59E0B"
-                      ? "#0A0A0C"
-                      : "#FFFFFF",
-                }}
-              >
-                {activeDisplaySlice.shortName}
-              </span>
-
-              {/* Number / Big Percentage: e.g. 12.5% */}
-              <div className="text-[32px] leading-none font-black text-[var(--text)] font-mono tracking-tight my-0.5">
-                {activeDisplaySlice.percentage.toFixed(1)}%
+          {/* SIMPLE TELEMETRY BELOW THE DONUT (NO CARD BOX, CLEAN DISPLAY) */}
+          <div className="flex flex-col items-center text-center mt-1 min-h-[72px] justify-center transition-all duration-200">
+            {hoveredSlice ? (
+              <div className="animate-in fade-in duration-150 flex flex-col items-center">
+                <span
+                  className="inline-block text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1 shadow-xs"
+                  style={{
+                    background: hoveredSlice.color === "#FFFFFF" ? "#FFFFFF" : hoveredSlice.color,
+                    color:
+                      hoveredSlice.color === "#FFFFFF" ||
+                      hoveredSlice.color === "#FFD60A" ||
+                      hoveredSlice.color === "#FBBF24" ||
+                      hoveredSlice.color === "#F59E0B"
+                        ? "#0A0A0C"
+                        : "#FFFFFF",
+                  }}
+                >
+                  {hoveredSlice.shortName}
+                </span>
+                <div className="text-[28px] leading-tight font-black text-[var(--text)] font-mono tracking-tight my-0.5">
+                  {hoveredSlice.percentage.toFixed(1)}%
+                </div>
+                <div className="text-[11px] font-semibold text-[var(--muted)] flex items-center gap-1.5 font-mono">
+                  <span>{hoveredSlice.scaledCount.toLocaleString()} members</span>
+                  <span>•</span>
+                  <span className="text-[#F59E0B] font-bold">PKR {(hoveredSlice.pricePKR / 1000).toFixed(0)}k</span>
+                </div>
               </div>
-
-              {/* Members Count Subtext: e.g. 641 members */}
-              <div className="text-[11px] font-semibold text-[var(--muted)]">
-                {activeDisplaySlice.scaledCount.toLocaleString()} members
+            ) : (
+              <div className="animate-in fade-in duration-150 flex flex-col items-center">
+                <span className="text-[11px] font-black uppercase tracking-widest text-[var(--accent)]">
+                  Total Active
+                </span>
+                <div className="text-[32px] leading-none text-[var(--text)] font-black my-1 font-mono tracking-tight">
+                  {totalMembersCount.toLocaleString()}
+                </div>
+                <div className="text-[11px] font-semibold text-[var(--muted)] flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
+                  <span>Active Members across Plans</span>
+                </div>
               </div>
-
-              {/* Currency / Price in Gold/Amber: e.g. PKR 66k */}
-              <div className="text-[11.5px] font-mono font-bold text-[#F59E0B] mt-1 tracking-wide">
-                PKR {(activeDisplaySlice.pricePKR / 1000).toFixed(0)}k
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* INTERACTIVE LEGEND (Two-way cross-highlighting on hover & click) */}
