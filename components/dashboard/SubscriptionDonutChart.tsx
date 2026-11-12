@@ -35,6 +35,7 @@ export function SubscriptionDonutChart({
   selectedBranchName,
 }: SubscriptionDonutChartProps) {
   const [hoveredSliceId, setHoveredSliceId] = useState<string | null>(null);
+  const [selectedSliceId, setSelectedSliceId] = useState<string | null>("plan-trifit-plus-3m");
   const [viewMode, setViewMode] = useState<"all" | "tier">("all");
 
   // Palette strictly conforming to Obsidian HUD:
@@ -200,6 +201,15 @@ export function SubscriptionDonutChart({
 
   const hoveredSlice = activeSlices.find((s) => s.id === hoveredSliceId) || null;
 
+  const activeDisplaySlice = useMemo(() => {
+    if (hoveredSlice) return hoveredSlice;
+    if (selectedSliceId) {
+      const found = activeSlices.find((s) => s.id === selectedSliceId);
+      if (found) return found;
+    }
+    return activeSlices[0] || allSlices[0];
+  }, [hoveredSlice, activeSlices, selectedSliceId, allSlices]);
+
   return (
     <div className="glass p-[22px] flex flex-col justify-between gap-4 h-full relative overflow-hidden">
       {/* CARD HEADER */}
@@ -247,111 +257,138 @@ export function SubscriptionDonutChart({
       </div>
 
       {/* CHART & INTERACTIVE LEGEND CONTAINER */}
-      <div className="flex flex-col xl:flex-row items-center justify-between gap-5 my-1">
-        {/* DONUT CHART WITH CENTER HOLE METRIC */}
-        <div className="relative w-[210px] h-[210px] shrink-0 flex items-center justify-center">
-          <svg
-            viewBox="0 0 220 220"
-            className="w-full h-full overflow-visible"
-            role="img"
-            aria-label="Subscription Tier Donut Chart"
-          >
-            <defs>
-              <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="5" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
-            </defs>
+      <div className="flex flex-col xl:flex-row items-center justify-between gap-6 my-1">
+        {/* DONUT COLUMN (DONUT SVG ON TOP + TELEMETRY CARD BELOW) */}
+        <div className="flex flex-col items-center gap-3 shrink-0">
+          {/* DONUT SVG WITH CLEAN CENTER HOLE */}
+          <div className="relative w-[210px] h-[210px] shrink-0 flex items-center justify-center">
+            <svg
+              viewBox="0 0 220 220"
+              className="w-full h-full overflow-visible"
+              role="img"
+              aria-label="Subscription Tier Donut Chart"
+            >
+              <defs>
+                <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="5" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
 
-            {/* Background circular guide ring */}
-            <circle
-              cx={cx}
-              cy={cy}
-              r={(R + r) / 2}
-              fill="none"
-              stroke="var(--line)"
-              strokeWidth={R - r}
-              opacity="0.25"
-            />
+              {/* Background circular guide ring */}
+              <circle
+                cx={cx}
+                cy={cy}
+                r={(R + r) / 2}
+                fill="none"
+                stroke="var(--line)"
+                strokeWidth={R - r}
+                opacity="0.25"
+              />
 
-            {/* Donut Segments with Radial "Pop Outward" Hover Animation */}
-            {arcSegments.map(({ slice, pathD, tx, ty }) => {
-              const isHovered = hoveredSliceId === slice.id;
-              const hasHover = hoveredSliceId !== null;
+              {/* Donut Segments with Radial "Pop Outward" Hover Animation & Click Pinning */}
+              {arcSegments.map(({ slice, pathD, tx, ty }) => {
+                const isHovered = hoveredSliceId === slice.id;
+                const isSelected = selectedSliceId === slice.id;
+                const hasHover = hoveredSliceId !== null;
 
-              return (
-                <g
-                  key={slice.id}
-                  transform={isHovered ? `translate(${tx.toFixed(2)}, ${ty.toFixed(2)})` : "translate(0, 0)"}
-                  style={{
-                    transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease",
-                    cursor: "pointer",
-                  }}
-                  onMouseEnter={() => setHoveredSliceId(slice.id)}
-                  onMouseLeave={() => setHoveredSliceId(null)}
-                  opacity={hasHover && !isHovered ? 0.42 : 1}
-                >
-                  <path
-                    d={pathD}
-                    fill={slice.color}
-                    stroke={isHovered ? "var(--accent)" : "rgba(0,0,0,0.3)"}
-                    strokeWidth={isHovered ? 2.5 : 1}
+                return (
+                  <g
+                    key={slice.id}
+                    transform={isHovered ? `translate(${tx.toFixed(2)}, ${ty.toFixed(2)})` : "translate(0, 0)"}
                     style={{
-                      filter: isHovered
-                        ? `drop-shadow(0 0 10px ${slice.color}cc) drop-shadow(0 6px 14px rgba(0,0,0,0.55))`
-                        : "drop-shadow(0 2px 4px rgba(0,0,0,0.25))",
-                      transition: "filter 0.25s ease, stroke-width 0.25s ease, stroke 0.25s ease",
+                      transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease",
+                      cursor: "pointer",
                     }}
-                  />
-                </g>
-              );
-            })}
-          </svg>
+                    onMouseEnter={() => setHoveredSliceId(slice.id)}
+                    onMouseLeave={() => setHoveredSliceId(null)}
+                    onClick={() => setSelectedSliceId(slice.id)}
+                    opacity={hasHover && !isHovered ? 0.42 : 1}
+                  >
+                    <path
+                      d={pathD}
+                      fill={slice.color}
+                      stroke={isHovered || isSelected ? "var(--accent)" : "rgba(0,0,0,0.3)"}
+                      strokeWidth={isHovered || isSelected ? 2.5 : 1}
+                      style={{
+                        filter: isHovered || isSelected
+                          ? `drop-shadow(0 0 10px ${slice.color}cc) drop-shadow(0 6px 14px rgba(0,0,0,0.55))`
+                          : "drop-shadow(0 2px 4px rgba(0,0,0,0.25))",
+                        transition: "filter 0.25s ease, stroke-width 0.25s ease, stroke 0.25s ease",
+                      }}
+                    />
+                  </g>
+                );
+              })}
+            </svg>
 
-          {/* CENTER DONUT HOLE SUMMARY (Updates dynamically on slice hover) */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2 pointer-events-none transition-all duration-200">
-            {hoveredSlice ? (
-              <div className="animate-in fade-in zoom-in-95 duration-150 flex flex-col items-center">
-                <span
-                  className="inline-block text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-0.5 truncate max-w-[110px]"
-                  style={{
-                    background: hoveredSlice.color,
-                    color: hoveredSlice.color === "#FFFFFF" ? "#111111" : "#0b0b0c",
-                  }}
-                >
-                  {hoveredSlice.shortName}
-                </span>
-                <div className="kpi-value text-[24px] leading-none text-[var(--text)] font-black my-0.5">
-                  {hoveredSlice.percentage.toFixed(1)}%
-                </div>
-                <div className="body-label text-[10px] font-semibold text-[var(--muted)]">
-                  {hoveredSlice.scaledCount.toLocaleString()} members
-                </div>
-                <div className="text-[10px] font-mono text-[var(--accent)] font-bold mt-0.5">
-                  PKR {(hoveredSlice.pricePKR / 1000).toFixed(0)}k
-                </div>
+            {/* CENTER DONUT HOLE SUMMARY (Clean Active Count) */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2 pointer-events-none transition-all duration-200">
+              <span className="body-label text-[9.5px] font-bold uppercase tracking-widest text-[var(--muted)]">
+                Total Active
+              </span>
+              <div className="kpi-value text-[24px] leading-none text-[var(--text)] font-black my-1 font-mono">
+                {totalMembersCount.toLocaleString()}
               </div>
-            ) : (
-              <div className="animate-in fade-in zoom-in-95 duration-150 flex flex-col items-center">
-                <span className="body-label text-[9.5px] font-bold uppercase tracking-widest text-[var(--muted)]">
-                  Total Active
-                </span>
-                <div className="kpi-value text-[26px] leading-none text-[var(--text)] font-black my-1">
-                  {totalMembersCount.toLocaleString()}
-                </div>
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--accent)]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
-                  TriFit Plans
-                </span>
-              </div>
-            )}
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--accent)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
+                TriFit Plans
+              </span>
+            </div>
           </div>
+
+          {/* DEDICATED TELEMETRY CARD: EXACT TEXT AND NUMBER BELOW THE DONUT */}
+          {activeDisplaySlice && (
+            <div
+              key={activeDisplaySlice.id}
+              className="w-[195px] py-2 px-3 rounded-2xl bg-[var(--menu-hover)]/90 border border-[var(--line)] shadow-sm flex flex-col items-center text-center transition-all duration-200 backdrop-blur-sm"
+              style={{
+                borderColor:
+                  activeDisplaySlice.color === "#FFFFFF"
+                    ? "rgba(255, 255, 255, 0.4)"
+                    : `${activeDisplaySlice.color}60`,
+              }}
+            >
+              {/* Badge: e.g. PLUS (3 MONTHS) */}
+              <span
+                className="inline-block text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full mb-1 truncate max-w-[170px] shadow-xs"
+                style={{
+                  background: activeDisplaySlice.color === "#FFFFFF" ? "#FFFFFF" : activeDisplaySlice.color,
+                  color:
+                    activeDisplaySlice.color === "#FFFFFF" ||
+                    activeDisplaySlice.color === "#FFD60A" ||
+                    activeDisplaySlice.color === "#FBBF24" ||
+                    activeDisplaySlice.color === "#F59E0B"
+                      ? "#0A0A0C"
+                      : "#FFFFFF",
+                }}
+              >
+                {activeDisplaySlice.shortName}
+              </span>
+
+              {/* Number / Big Percentage: e.g. 12.5% */}
+              <div className="text-[32px] leading-none font-black text-[var(--text)] font-mono tracking-tight my-0.5">
+                {activeDisplaySlice.percentage.toFixed(1)}%
+              </div>
+
+              {/* Members Count Subtext: e.g. 641 members */}
+              <div className="text-[11px] font-semibold text-[var(--muted)]">
+                {activeDisplaySlice.scaledCount.toLocaleString()} members
+              </div>
+
+              {/* Currency / Price in Gold/Amber: e.g. PKR 66k */}
+              <div className="text-[11.5px] font-mono font-bold text-[#F59E0B] mt-1 tracking-wide">
+                PKR {(activeDisplaySlice.pricePKR / 1000).toFixed(0)}k
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* INTERACTIVE LEGEND (Two-way cross-highlighting on hover) */}
-        <div className="flex-1 w-full flex flex-col gap-1 min-w-0 max-h-[280px] overflow-y-auto pr-1">
+        {/* INTERACTIVE LEGEND (Two-way cross-highlighting on hover & click) */}
+        <div className="flex-1 w-full flex flex-col gap-1 min-w-0 max-h-[310px] overflow-y-auto pr-1">
           {activeSlices.map((slice) => {
             const isHovered = hoveredSliceId === slice.id;
+            const isSelected = selectedSliceId === slice.id;
             const hasHover = hoveredSliceId !== null;
 
             return (
@@ -359,8 +396,9 @@ export function SubscriptionDonutChart({
                 key={slice.id}
                 onMouseEnter={() => setHoveredSliceId(slice.id)}
                 onMouseLeave={() => setHoveredSliceId(null)}
-                className={`py-1 px-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-between gap-2 border ${
-                  isHovered
+                onClick={() => setSelectedSliceId(slice.id)}
+                className={`py-1.5 px-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-between gap-2 border ${
+                  isHovered || isSelected
                     ? "bg-[var(--menu-hover)] border-[var(--accent)] shadow-sm scale-[1.01]"
                     : hasHover
                     ? "opacity-50 border-transparent hover:opacity-80"
@@ -373,8 +411,8 @@ export function SubscriptionDonutChart({
                     className="w-2.5 h-2.5 rounded-full shrink-0 transition-transform duration-200 shadow-xs"
                     style={{
                       background: slice.color,
-                      boxShadow: isHovered ? `0 0 8px ${slice.color}` : "none",
-                      transform: isHovered ? "scale(1.25)" : "scale(1)",
+                      boxShadow: isHovered || isSelected ? `0 0 8px ${slice.color}` : "none",
+                      transform: isHovered || isSelected ? "scale(1.25)" : "scale(1)",
                     }}
                   />
                   <div className="min-w-0">
