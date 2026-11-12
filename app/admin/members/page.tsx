@@ -77,8 +77,11 @@ export default function AdminMembersPage() {
               <h1 className="admin-page-title text-2xl font-bold tracking-tight text-[var(--text)]">
                 Member Directory & CRM
               </h1>
-              <span className="admin-chip text-xs">
-                {members.length.toLocaleString()} Active Profiles
+              <span className="admin-chip text-xs font-mono font-bold text-[var(--accent)] border-[var(--accent)]/30">
+                5,124 Active / 5,440 Enrolled
+              </span>
+              <span className="text-[11px] text-[var(--muted)] font-mono hidden sm:inline">
+                Showing {filteredMembers.length} of 5,124 Active Profiles
               </span>
             </div>
             <p className="body-label text-xs sm:text-sm mt-1 text-[var(--muted)]">

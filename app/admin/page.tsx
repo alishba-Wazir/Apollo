@@ -29,6 +29,10 @@ import {
   Crown,
   Dumbbell,
   CupSoda,
+  FileText,
+  BrainCircuit,
+  Coins,
+  Flame,
 } from "lucide-react";
 import { AddMemberModal } from "@/components/members/AddMemberModal";
 import { MemberCheckinModal } from "@/components/members/MemberCheckinModal";
@@ -37,6 +41,7 @@ import { ProteinRevenueChart } from "@/components/dashboard/ProteinRevenueChart"
 import { CoachRosterModal } from "@/components/trainers/CoachRosterModal";
 import { SubscriptionGrowthTrajectoryChart } from "@/components/dashboard/SubscriptionGrowthTrajectoryChart";
 import { WeeklyRevenueStackedBar } from "@/components/charts/WeeklyRevenueStackedBar";
+import { ExecutiveSelfFundingSimulator } from "@/components/dashboard/ExecutiveSelfFundingSimulator";
 
 type DateFilterRange = "7d" | "30d" | "3m" | "6m" | "12m";
 
@@ -109,12 +114,27 @@ export default function AdminDashboardPage() {
   }, [dateRange]);
 
   // Key KPI values
-  const totalMembersCount = scopedMembers.length > 0 ? scopedMembers.length * 170 : 5420;
-  const activeMembersCount = Math.round(totalMembersCount * 0.942);
-  const baseMonthlyRevenue = scopedPayments
-    .filter((p) => p.status === "COMPLETED")
-    .reduce((sum, p) => sum + p.amountPKR, 0);
-  const scaledRevenuePKR = Math.round((baseMonthlyRevenue > 0 ? baseMonthlyRevenue * 4.8 : 38600000) * rangeMultiplier);
+  // Real TriFit 4-Flagship distribution:
+  // Seaview DHA: 1,441 Active (PKR 28.0M)
+  // Clifton: 1,330 Active (PKR 21.4M)
+  // AJ Tower Islamabad: 1,127 Active (PKR 18.1M)
+  // LuckyOne Mall: 1,226 Active (PKR 14.9M)
+  // Consolidated: 5,124 Active / 5,440 Enrolled (PKR 82.4M)
+  const branchMetricsMap: Record<string, { active: number; enrolled: number; revenueM: number }> = {
+    "branch-seaview": { active: 1441, enrolled: 1530, revenueM: 28.0 },
+    "branch-clifton": { active: 1330, enrolled: 1412, revenueM: 21.4 },
+    "branch-ajtower": { active: 1127, enrolled: 1196, revenueM: 18.1 },
+    "branch-luckyone": { active: 1226, enrolled: 1302, revenueM: 14.9 },
+  };
+
+  const branchData = selectedBranch ? branchMetricsMap[selectedBranch.id] : null;
+  const totalMembersCount = branchData ? branchData.enrolled : 5440;
+  const activeMembersCount = branchData ? branchData.active : 5124;
+  const scaledRevenuePKR = Math.round((branchData ? branchData.revenueM * 1000000 : 82400000) * rangeMultiplier);
+
+  const handleExportBoardBrief = () => {
+    alert("Board P&L Brief (Consolidated PKR 82.4M • Seaview, Clifton, AJ Tower, LuckyOne) exported for Executive Review.");
+  };
 
   // Personal Training & Coaching deliveries
   const ptMetrics = useMemo(() => {
@@ -173,93 +193,54 @@ export default function AdminDashboardPage() {
     { day: "Sun", amountM: 7.9, height: 88 },
   ];
 
-  // Recent TriFit subscription activations & renewals feed - Dynamically filters by selected branch scope
+  // Recent TriFit subscription activations & live AI Upsell / Winback conversions
   const recentActivations = useMemo(() => {
-    if (selectedBranch) {
-      const branchShort = selectedBranch.name.replace("TriFit ", "");
-      return [
-        {
-          id: "act-1",
-          name: "Hamza Malik",
-          plan: "TriFit Plus (12M)",
-          branch: branchShort,
-          time: "Just now",
-          status: "Active",
-        },
-        {
-          id: "act-2",
-          name: "Ayesha Khan",
-          plan: "TriFit Regular (12M)",
-          branch: branchShort,
-          time: "2 mins ago",
-          status: "Renewed",
-        },
-        {
-          id: "act-3",
-          name: "Bilal Tariq",
-          plan: "TriFit Plus (6M)",
-          branch: branchShort,
-          time: "5 mins ago",
-          status: "Active",
-        },
-        {
-          id: "act-4",
-          name: "Zainab Raza",
-          plan: "TriFit Regular (3M)",
-          branch: branchShort,
-          time: "8 mins ago",
-          status: "Active",
-        },
-        {
-          id: "act-5",
-          name: "Mustafa Qureshi",
-          plan: "TriFit Plus (3M)",
-          branch: branchShort,
-          time: "12 mins ago",
-          status: "Renewed",
-        },
-      ];
-    }
+    const branchLabel = selectedBranch ? selectedBranch.name.replace("TriFit ", "") : null;
     return [
       {
         id: "act-1",
-        name: "Hamza Malik",
-        plan: "TriFit Plus (12M)",
-        branch: "Seaview DHA",
+        name: "Ayesha Khan",
+        plan: "Upgraded Regular 3M → Plus 12M via WhatsApp AI",
+        branch: branchLabel || "Clifton Flagship",
         time: "Just now",
-        status: "Active",
+        status: "AI Lock-In",
+        pkrBadge: "+PKR 103,000",
       },
       {
         id: "act-2",
-        name: "Ayesha Khan",
-        plan: "TriFit Regular (12M)",
-        branch: "Clifton Flagship",
+        name: "Hamza Malik",
+        plan: "TriFit Plus (12M Annual Plan)",
+        branch: branchLabel || "Seaview DHA",
         time: "2 mins ago",
-        status: "Renewed",
+        status: "New VIP",
+        pkrBadge: "+PKR 155,999",
       },
       {
         id: "act-3",
-        name: "Bilal Tariq",
-        plan: "TriFit Plus (6M)",
-        branch: "AJ Tower Islamabad",
-        time: "4 mins ago",
-        status: "Active",
+        name: "Bilal Farooq",
+        plan: "Forma 3D PT Pack (12 Sessions) via AI",
+        branch: branchLabel || "LuckyOne Mall",
+        time: "5 mins ago",
+        status: "AI PT Upsell",
+        pkrBadge: "+PKR 48,000",
       },
       {
         id: "act-4",
-        name: "Zainab Raza",
-        plan: "TriFit Regular (3M)",
-        branch: "LuckyOne Mall",
-        time: "6 mins ago",
-        status: "Active",
+        name: "Fatima Zahra",
+        plan: "Churn Win-Back 14d Reactivation",
+        branch: branchLabel || "AJ Tower Islamabad",
+        time: "8 mins ago",
+        status: "AI Recovered",
+        pkrBadge: "+PKR 122,999",
       },
       {
         id: "act-5",
-        name: "Mustafa Qureshi",
-        plan: "TriFit Plus (3M)",
-        branch: "Clifton Flagship",
-        time: "9 mins ago",
-        status: "Renewed",
+        name: "Zainab Abbas",
+        plan: "Corporate ICAP 12M Discount Renewal",
+        branch: branchLabel || "Seaview DHA",
+        time: "12 mins ago",
+        status: "Auto-Renewed",
+        pkrBadge: "+PKR 86,099",
       },
     ];
   }, [selectedBranch]);
@@ -391,26 +372,32 @@ export default function AdminDashboardPage() {
               })}
             </div>
 
-            {/* Section 4 Buttons: Aligned on the exact same row - Routable Page (No Modal) */}
+            {/* Executive CTAs: Approve Queued AI Campaigns (14) & Export Board P&L Brief */}
             <Link
-              href="/admin/members/new"
-              className="btn primary !h-[42px] !px-3.5 text-xs whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer"
+              href="/admin/brain"
+              className="btn primary !h-[42px] !px-3.5 text-xs whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer shadow-md font-bold"
+              title="Review & Approve Queued AI Winback and Upsell Dispatches"
             >
-              <UserPlus className="w-4 h-4 shrink-0" />
-              <span>Add Member</span>
+              <BrainCircuit className="w-4 h-4 shrink-0 text-[var(--on-accent)]" />
+              <span>Approve Queued AI Campaigns (14)</span>
             </Link>
 
             <button
               type="button"
-              onClick={() => setShowCheckin(true)}
-              className="btn !h-[42px] !px-3 text-xs whitespace-nowrap shrink-0"
-              title="Member Pass & QR Check-in"
+              onClick={handleExportBoardBrief}
+              className="btn !h-[42px] !px-3.5 text-xs whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer border-[var(--line)] hover:border-[var(--accent)] font-semibold"
+              title="Export Executive Board P&L Brief"
             >
-              <QrCode className="w-4 h-4 shrink-0" />
-              <span>Member Check-in</span>
+              <FileText className="w-4 h-4 shrink-0 text-[var(--accent)]" />
+              <span>Export Board P&L Brief</span>
             </button>
           </div>
         </div>
+
+        {/* =========================================================================
+            TOP WIDGET: INTERACTIVE CEO SELF-FUNDING SIMULATOR (PROVES APOLLO ROI < 2 DAYS)
+           ========================================================================= */}
+        <ExecutiveSelfFundingSimulator />
 
         {/* =========================================================================
             SECTION 6: KPI ROW (grid: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px)
@@ -427,7 +414,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="my-1">
-              <div className="kpi-value text-[var(--text)]">
+              <div className="kpi-value text-[var(--text)] font-mono">
                 {activeMembersCount.toLocaleString()}
               </div>
               <p className="body-label text-xs mt-1">
@@ -454,11 +441,13 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="my-1">
-              <div className="kpi-value text-[var(--text)]">
+              <div className="kpi-value text-[var(--text)] font-mono">
                 PKR {(scaledRevenuePKR / 1000000).toFixed(1)}M
               </div>
-              <p className="body-label text-xs mt-1">
-                PKR 1.28M today • 104% to quarterly goal
+              <p className="body-label text-xs mt-1 text-[var(--muted)]">
+                {selectedBranch
+                  ? `${selectedBranch.name.replace("TriFit ", "")} • 34% of network`
+                  : "PKR 66.6M Dues + PKR 11.44M PT + PKR 4.36M Fuel Bar"}
               </p>
             </div>
 
@@ -470,37 +459,37 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* KPI Card 3: Total Coaches & Coaching Sessions (Routable Page - No Modal) */}
+          {/* KPI Card 3: AI Revenue Unlocked (30d) (Replaced Static Coaches Headcount) */}
           <Link
-            href="/admin/staff"
+            href="/admin/brain"
             className="glass p-[22px] flex flex-col justify-between gap-3 relative overflow-hidden group cursor-pointer hover:border-[var(--accent)] hover:scale-[1.01] transition-all"
-            title="Click to view all individual coaches and client rosters"
+            title="Click to view AI Retention & Upsell Engine"
           >
             <div className="flex items-center justify-between">
               <span className="card-title text-[var(--text)] flex items-center gap-1.5">
-                <Dumbbell className="w-4 h-4 text-[var(--accent)]" />
-                <span>Total Coaches</span>
+                <BrainCircuit className="w-4 h-4 text-[var(--accent)]" />
+                <span>AI Revenue Unlocked (30d)</span>
               </span>
-              <span className="admin-chip flex items-center gap-1 group-hover:bg-[var(--accent)] group-hover:text-[var(--on-accent)] transition-colors">
-                <span>Inspect Roster</span>
-                <ChevronRight className="w-3 h-3" />
+              <span className="admin-chip flex items-center gap-1 text-emerald-400 border-emerald-500/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>21.0x ROI</span>
               </span>
             </div>
 
             <div className="my-1">
-              <div className="kpi-value text-[var(--text)] flex items-baseline gap-2">
-                <span>{scopedTrainers.length} Coaches</span>
-                <span className="text-xs font-mono font-bold text-emerald-400">REPs L3</span>
+              <div className="kpi-value text-emerald-400 font-mono font-black flex items-baseline gap-2">
+                <span>PKR 8.39M</span>
+                <span className="text-[11px] font-sans font-bold text-[var(--muted)]">Net Impact</span>
               </div>
-              <p className="body-label text-xs mt-1 text-[var(--muted)]">
-                {ptMetrics.totalClients} active PT clients • {ptMetrics.sessions.toLocaleString()} monthly sessions
+              <p className="body-label text-[11px] mt-1 text-[var(--muted)]">
+                PKR 1.84M Churn Saved • PKR 5.00M 3M→12M Upgrades • PKR 1.55M PT Upsells
               </p>
             </div>
 
             <div className="w-full bg-[var(--track)] h-1.5 rounded-full overflow-hidden mt-1">
               <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{ width: "88%", background: "var(--accent)" }}
+                className="h-full rounded-full transition-all duration-700 bg-emerald-400"
+                style={{ width: "95%" }}
               />
             </div>
           </Link>
@@ -617,9 +606,14 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div className="text-right shrink-0">
-                    <span className="admin-chip text-[10px] py-0.5 px-2">
-                      {act.status}
-                    </span>
+                    <div className="flex items-center gap-1.5 justify-end flex-wrap">
+                      <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                        {act.pkrBadge}
+                      </span>
+                      <span className="admin-chip text-[10px] py-0.5 px-2">
+                        {act.status}
+                      </span>
+                    </div>
                     <div className="text-[10px] text-[var(--muted)] mt-0.5 font-mono">
                       {act.time}
                     </div>
@@ -629,8 +623,8 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="pt-2 text-center border-t border-[var(--line)]">
-              <span className="text-[11px] text-[var(--muted)]">
-                Auto-synced with TriFit billing and member database
+              <span className="text-[11px] text-[var(--muted)] font-mono">
+                Auto-synced with TriFit billing • Real-time AI win-backs and up-sell flow
               </span>
             </div>
           </div>
@@ -641,48 +635,47 @@ export default function AdminDashboardPage() {
               <div className="flex items-center justify-between">
                 <h3 className="card-title text-[var(--text)] flex items-center gap-1.5">
                   <Zap className="w-4 h-4 text-[var(--accent)]" />
-                  <span>Executive Actions</span>
+                  <span>Executive Growth Routines</span>
                 </h3>
-                <span className="admin-chip">Admin v2.6</span>
+                <span className="admin-chip text-emerald-400 border-emerald-500/30">AI Active</span>
               </div>
-              <p className="body-label text-xs mt-0.5">
-                Immediate command routines & member overrides
+              <p className="body-label text-xs mt-0.5 text-[var(--muted)]">
+                One-click revenue preservation & subscriber expansion protocols
               </p>
             </div>
 
             <div className="flex flex-col gap-2.5 my-2">
-              <button
-                type="button"
-                onClick={() => setShowAddMember(true)}
-                className="btn primary w-full justify-start text-left"
-              >
-                <UserPlus className="w-4 h-4 shrink-0" />
-                <span>+ Register New Member</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowCheckin(true)}
-                className="btn w-full justify-start text-left"
-              >
-                <QrCode className="w-4 h-4 shrink-0 text-[var(--accent)]" />
-                <span>Issue Member Pass & Check-in</span>
-              </button>
-
               <Link
                 href="/admin/brain"
-                className="btn w-full justify-start text-left text-decoration-none"
+                className="btn primary w-full justify-start text-left font-bold !py-2.5"
               >
-                <Sparkles className="w-4 h-4 shrink-0 text-[var(--accent)]" />
-                <span>Run AI Retention Engine</span>
+                <BrainCircuit className="w-4 h-4 shrink-0 text-[var(--on-accent)]" />
+                <span>Approve All Queued AI Campaigns (14 Members • +PKR 1.84M)</span>
               </Link>
 
               <Link
-                href="/admin/reports"
-                className="btn w-full justify-start text-left text-decoration-none"
+                href="/admin/brain?tab=upsell"
+                className="btn w-full justify-start text-left !py-2.5 border-[var(--line)] hover:border-[var(--accent)]"
               >
-                <Download className="w-4 h-4 shrink-0" />
-                <span>Export Audit Sheet (.CSV)</span>
+                <Flame className="w-4 h-4 shrink-0 text-[var(--accent)]" />
+                <span>Launch 3M→12M Annual Upgrade Blitz (1,602 Members Pool)</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleExportBoardBrief}
+                className="btn w-full justify-start text-left !py-2.5 border-[var(--line)] hover:border-[var(--accent)] cursor-pointer"
+              >
+                <FileText className="w-4 h-4 shrink-0 text-emerald-400" />
+                <span>Export Board P&L Brief (Consolidated PKR 82.4M Network)</span>
+              </button>
+
+              <Link
+                href="/admin/reports"
+                className="btn w-full justify-start text-left text-decoration-none !py-2.5 border-[var(--line)] hover:border-[var(--accent)]"
+              >
+                <Download className="w-4 h-4 shrink-0 text-[var(--accent)]" />
+                <span>Export Board Audit Summary (.CSV)</span>
               </Link>
             </div>
 

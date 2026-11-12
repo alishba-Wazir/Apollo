@@ -20,14 +20,32 @@ import {
 
 export default function GrowthAndLeakagePage() {
   const [retentionLift, setRetentionLift] = useState(2.0); // +2% lift
+  const [atRiskMRRPKR, setAtRiskMRRPKR] = useState(3930000);
+  const [reassignedWaleed, setReassignedWaleed] = useState(false);
+  const [growthToast, setGrowthToast] = useState<string | null>(null);
 
   // Revenue simulator calculation
   const currentMRRPKR = 38600000;
   const simulatedLiftPKR = Math.round(currentMRRPKR * (retentionLift / 100) * 12);
 
+  const handleExecuteReassignment = () => {
+    setAtRiskMRRPKR(3440000);
+    setReassignedWaleed(true);
+    setGrowthToast("14 at-risk clients successfully reassigned from Coach Waleed to Coach Sarah! At-Risk MRR reduced by PKR 490,000.");
+    setTimeout(() => setGrowthToast(null), 4000);
+  };
+
   return (
     <AdminPortalLayout activeItem="growth">
       <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full pb-16">
+        {/* Toast Alert */}
+        {growthToast && (
+          <div className="p-3.5 rounded-2xl bg-[var(--chip)] border border-emerald-500/40 text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+            <TrendingUp className="w-4 h-4 shrink-0" />
+            <span>{growthToast}</span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[var(--line)]">
           <div>
@@ -57,7 +75,7 @@ export default function GrowthAndLeakagePage() {
           <div className="glass p-4 rounded-xl">
             <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">Net Growth Velocity</div>
             <div className="text-2xl font-bold font-mono text-[var(--accent)] mt-1">+142 / mo</div>
-            <div className="text-[10px] text-emerald-400 mt-0.5">New joins outpace exits 2.4x</div>
+            <div className="text-[10px] text-emerald-400 mt-0.5">370 New Joins vs. 228 Exits (1.62x ratio)</div>
           </div>
           <div className="glass p-4 rounded-xl">
             <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">Total Leakage Rate</div>
@@ -66,18 +84,29 @@ export default function GrowthAndLeakagePage() {
           </div>
           <div className="glass p-4 rounded-xl">
             <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">At-Risk MRR Pool</div>
-            <div className="text-2xl font-bold font-mono text-[var(--text)] mt-1">PKR 3.93M</div>
-            <div className="text-[10px] text-amber-400 mt-0.5">Scanned by AI Retention Engine</div>
+            <div className="text-2xl font-bold font-mono text-[var(--text)] mt-1">
+              PKR {(atRiskMRRPKR / 1000000).toFixed(2)}M
+            </div>
+            <div className={`text-[10px] mt-0.5 font-semibold ${reassignedWaleed ? "text-emerald-400" : "text-amber-400"}`}>
+              {reassignedWaleed ? "Reduced by PKR 490k (Audit Active)" : "Scanned by AI Retention Engine"}
+            </div>
           </div>
           <div className="glass p-4 rounded-xl">
-            <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">Winback Success</div>
+            <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">Post-Cancellation Win-Back</div>
             <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">34.6%</div>
-            <div className="text-[10px] text-emerald-400 mt-0.5">79 recovered via WhatsApp</div>
+            <div className="text-[10px] text-emerald-400 mt-0.5">79 reactivated after exit</div>
           </div>
         </div>
 
         {/* SECTION 1: Branch Leakage Charts (Requested Donut + Horizontal Bar Combo) */}
-        <BranchLeakageCharts />
+        <BranchLeakageCharts
+          reassignedWaleed={reassignedWaleed}
+          onExecuteReassignment={handleExecuteReassignment}
+          onActionClick={(msg) => {
+            setGrowthToast(msg);
+            setTimeout(() => setGrowthToast(null), 3500);
+          }}
+        />
 
         {/* SECTION 2: Annual Trajectory Chart */}
         <SubscriptionGrowthTrajectoryChart />

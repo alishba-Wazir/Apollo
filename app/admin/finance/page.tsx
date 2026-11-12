@@ -275,24 +275,24 @@ export default function AdminFinancePage() {
             <div className="flex items-center gap-2.5">
               <h1 className="text-xl sm:text-2xl font-bold text-[var(--text)] tracking-tight flex items-center gap-2">
                 <Wallet className="w-5 h-5 text-[var(--accent)] shrink-0" />
-                <span>Finance & IBFT Reconciliation</span>
+                <span>Finance, Ledger & OCR Verification</span>
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--chip)] text-[var(--text)] border border-[var(--accent)]/30">
-                FBR & SRB Tax Compliant
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--chip)] text-[var(--text)] border border-[var(--accent)]/30 font-mono">
+                All 4 Flagship Clubs
               </span>
             </div>
             <span className="text-xs text-[var(--muted)] mt-0.5 block">
-              Consolidated revenue streams, AI bank slip OCR validation, and Kiryana petty ledger
+              PKR 82.4M consolidated network collections, AI bank slip OCR validation, and Club OpEx & Vendor Invoice OCR
             </span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setIsKiryanaModalOpen(true)}
-              className="btn primary !py-1.5 !px-3.5 text-xs font-bold flex items-center gap-1.5"
+              className="btn primary !py-1.5 !px-3.5 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Scan Kiryana Slip</span>
+              <span>Club OpEx & Vendor Invoice OCR</span>
             </button>
           </div>
         </div>
@@ -309,66 +309,66 @@ export default function AdminFinancePage() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           <StatCard
             title="Consolidated Monthly Revenue"
-            value={totalRevDisplay}
+            value="PKR 82.4M"
             icon={Wallet}
             variant="warning"
             trend={{
-              value: "+4.1%",
+              value: "+14.2%",
               isPositive: true,
               label: "vs last month",
             }}
-            sparklineData={[18.5, 19.8, 21.2, 22.5, 23.95]}
+            sparklineData={[68.5, 72.8, 76.2, 79.5, 82.4]}
             sparklineColor="var(--accent)"
-            footerRight="All 5 Active Clubs"
+            footerRight="All 4 Flagship Clubs"
           />
 
           <StatCard
-            title="IBFT Transfers (AI OCR)"
-            value={ibftDisplay}
+            title="IBFT & Raast OCR Collections"
+            value="PKR 18.2M"
             icon={Receipt}
             variant="warning"
-            sparklineData={[9.5, 10.2, 11.5, 12.8, 14.1]}
+            sparklineData={[14.5, 15.2, 16.5, 17.8, 18.2]}
             sparklineColor="var(--accent)"
             footerLeft={
               <span className="font-semibold text-[var(--accent)]">
-                {totalRevPKR > 0 ? ((ibftTotalPKR / totalRevPKR) * 100).toFixed(1) : 0}% of total
+                22.1% of network
               </span>
             }
-            footerRight="Raast / 1LINK"
+            footerRight="Raast / 1LINK OCR"
           />
 
           <StatCard
             title="Front-Desk POS Cards"
-            value={posDisplay}
+            value="PKR 64.2M"
             icon={CreditCard}
             variant="warning"
-            sparklineData={[6.2, 6.8, 7.5, 8.1, 8.6]}
+            sparklineData={[52.2, 55.8, 58.5, 61.1, 64.2]}
             sparklineColor="var(--accent)"
             footerLeft={
               <span className="font-semibold text-[var(--accent)]">
-                {totalRevPKR > 0 ? ((posTotalPKR / totalRevPKR) * 100).toFixed(1) : 0}% of total
+                77.9% of network
               </span>
             }
             footerRight="Visa / Mastercard"
           />
 
           <StatCard
-            title="Petty Cash / Kiryana"
-            value="PKR 148.5K"
+            title="Fuel Bar & PT Margins"
+            value="PKR 15.80M"
             icon={ShoppingBag}
             variant="warning"
-            sparklineData={[120, 135, 142, 145, 148.5]}
+            sparklineData={[12.0, 13.5, 14.2, 14.8, 15.8]}
             sparklineColor="var(--accent)"
             footerLeft={
-              <span className="font-semibold text-[var(--muted)]">
-                18 Verified Slips
+              <span className="font-semibold text-emerald-400">
+                68% Gross Margin
               </span>
             }
-            footerRight="Monthly Run-rate"
+            footerRight="PKR 11.4M PT + 4.4M Fuel"
           />
         </div>
 
-        {/* 3 Horizontal Sub-Navigation Tabs */}
+        {/* 4 Horizontal Sub-Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-[var(--line)] pb-2 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveFinanceTab("ibft")}
@@ -396,10 +396,22 @@ export default function AdminFinancePage() {
             }`}
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>Branch Petty Cash / Kiryana Ledger</span>
+            <span>Club OpEx & Vendor Invoice OCR</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--card)] text-[var(--muted)] font-mono">
               {kiryanaLedger.length} Records
             </span>
+          </button>
+
+          <button
+            onClick={() => setActiveFinanceTab("margins" as any)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              (activeFinanceTab as string) === "margins"
+                ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-md"
+                : "text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--card)]"
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Fuel Bar & PT Margin Analytics</span>
           </button>
 
           <button
@@ -411,7 +423,7 @@ export default function AdminFinancePage() {
             }`}
           >
             <Building2 className="w-4 h-4" />
-            <span>Club-by-Club Financial Target Roster</span>
+            <span>Club-by-Club Target Roster</span>
           </button>
         </div>
 
@@ -505,9 +517,9 @@ export default function AdminFinancePage() {
 
                         <td className="py-3 px-4 text-right">
                           {item.status === "APPROVED" && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold">
                               <CheckCircle2 className="w-3 h-3" />
-                              <span>Verified ✓</span>
+                              <span>Verified & Auto-Extended Membership</span>
                             </span>
                           )}
                           {item.status === "FLAGGED" && (
@@ -625,6 +637,78 @@ export default function AdminFinancePage() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SUB-TAB: FUEL BAR & PT MARGIN ANALYTICS
+           ========================================================================= */}
+        {(activeFinanceTab as string) === "margins" && (
+          <div className="space-y-4 animate-in fade-in duration-200">
+            <div className="glass p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+              <div>
+                <h3 className="card-title text-[var(--text)] flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-[var(--accent)]" />
+                  <span>Fuel Bar & Personal Training Profitability Telemetry</span>
+                </h3>
+                <p className="body-label text-xs text-[var(--muted)] mt-1">
+                  High-margin secondary revenue streams: Attach rates per member check-in & gross margin by club
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="admin-chip text-emerald-400 border-emerald-500/30 text-xs font-mono font-bold">
+                  Consolidated: PKR 15.80M (68% Margin)
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { name: "Seaview DHA (Karachi)", ptRev: "PKR 4.80M", fuelRev: "PKR 1.62M", total: "PKR 6.42M", attach: "PKR 380", margin: "71%", cogs: "PKR 1.86M", badge: "Flagship Leader" },
+                { name: "Clifton Flagship (Karachi)", ptRev: "PKR 3.40M", fuelRev: "PKR 1.25M", total: "PKR 4.65M", attach: "PKR 340", margin: "68%", cogs: "PKR 1.48M", badge: "High Yield" },
+                { name: "AJ Tower (Islamabad)", ptRev: "PKR 1.90M", fuelRev: "PKR 0.81M", total: "PKR 2.71M", attach: "PKR 310", margin: "65%", cogs: "PKR 0.95M", badge: "Expanding" },
+                { name: "LuckyOne Mall (Karachi)", ptRev: "PKR 1.34M", fuelRev: "PKR 0.68M", total: "PKR 2.02M", attach: "PKR 290", margin: "64%", cogs: "PKR 0.73M", badge: "Growth Target" },
+              ].map((club, idx) => (
+                <div key={idx} className="glass p-5 rounded-2xl space-y-3.5 border border-[var(--card-border)] hover:border-[var(--accent)]/40 transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-[var(--text)]">{club.name}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--chip)] text-emerald-400 border border-emerald-500/30">
+                      {club.badge}
+                    </span>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-[var(--card)] border border-[var(--line)] space-y-1.5 font-mono text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted)]">PT Coaching Revenue:</span>
+                      <span className="text-[var(--text)] font-bold">{club.ptRev}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted)]">Fuel Bar Retail:</span>
+                      <span className="text-[var(--accent)] font-bold">{club.fuelRev}</span>
+                    </div>
+                    <div className="flex justify-between pt-1 border-t border-[var(--line)]">
+                      <span className="text-[var(--muted)]">Total High-Margin Rev:</span>
+                      <span className="text-emerald-400 font-bold">{club.total}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs font-mono">
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted)]">Attach Rate / Check-In:</span>
+                      <span className="text-[var(--text)] font-bold">{club.attach} / visit</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted)]">Blended Gross Margin:</span>
+                      <span className="text-emerald-400 font-bold">{club.margin}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[var(--muted)]">COGS & Ingredients:</span>
+                      <span className="text-[var(--muted)]">{club.cogs}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

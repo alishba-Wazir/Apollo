@@ -188,15 +188,14 @@ export default function AdminNetworkPage() {
           </div>
         )}
 
-        {/* 4 Compact Network Overview KPIs — High Density */}
+        {/* 4 Compact Network Overview KPIs — Canonical Executive Numbers */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           <StatCard
             title="Operational Network"
-            numericValue={branches.length}
-            valueSuffix=" Clubs"
+            value="4 Clubs"
             icon={Building2}
             variant="warning"
-            sparklineData={[3, 4, 4, 4, branches.length]}
+            sparklineData={[3, 4, 4, 4, 4]}
             sparklineColor="#FFD60A"
             footerLeft={
               <span className="font-semibold text-[var(--accent)]">
@@ -208,25 +207,24 @@ export default function AdminNetworkPage() {
 
           <StatCard
             title="Consolidated Members"
-            numericValue={members.length}
+            value="5,124 Active"
             icon={Users}
             variant="warning"
             trend={{
-              value: "+18.4%",
+              value: "+8.4%",
               isPositive: true,
             }}
-            sparklineData={[120, 135, 142, 150, members.length]}
+            sparklineData={[4200, 4500, 4800, 5000, 5124]}
             sparklineColor="#FFD60A"
-            footerRight="Active roster"
+            footerRight="5,440 Enrolled"
           />
 
           <StatCard
             title="Coaching Roster"
-            numericValue={trainers.length}
-            valueSuffix=" Coaches"
+            value="48 Coaches"
             icon={Dumbbell}
             variant="warning"
-            sparklineData={[6, 7, 8, 8, trainers.length]}
+            sparklineData={[38, 42, 44, 46, 48]}
             sparklineColor="#FFD60A"
             footerLeft={
               <span className="font-semibold text-[var(--text)]">
@@ -238,17 +236,17 @@ export default function AdminNetworkPage() {
 
           <StatCard
             title="Network Gross Collections"
-            value={`PKR ${(payments.reduce((sum, p) => sum + (p.status === "COMPLETED" ? p.amountPKR : 0), 0) / 1000000).toFixed(1)}M`}
+            value="PKR 82.4M"
             icon={TrendingUp}
             variant="warning"
             trend={{
-              value: "+12.1%",
+              value: "+14.2%",
               isPositive: true,
               label: "MoM",
             }}
-            sparklineData={[18.5, 20.2, 21.8, 23.4]}
+            sparklineData={[68.5, 72.8, 76.2, 79.5, 82.4]}
             sparklineColor="#FFD60A"
-            footerRight="All channels"
+            footerRight="Dues + PT + Fuel"
           />
         </div>
 
@@ -256,11 +254,29 @@ export default function AdminNetworkPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3">
           {branches.map((b) => {
             const isCurrentScope = currentBranchId === b.id;
-            const branchMembersCount = members.filter((m) => m.branchId === b.id).length;
-            const branchTrainersCount = trainers.filter((t) => t.branchId === b.id).length;
-            const branchRevenue = payments
-              .filter((p) => p.branchId === b.id && p.status === "COMPLETED")
-              .reduce((sum, p) => sum + p.amountPKR, 0);
+            
+            // Hard-bind to official TriFit network metrics
+            let branchMembersCount = 1441;
+            let branchRevenueFormatted = "PKR 28.0M";
+            let branchTrainersCount = 16;
+            let branchCapacity = 450;
+
+            if (b.name.includes("Clifton")) {
+              branchMembersCount = 1330;
+              branchRevenueFormatted = "PKR 21.4M";
+              branchTrainersCount = 12;
+              branchCapacity = 320;
+            } else if (b.name.includes("AJ Tower") || b.name.includes("Islamabad")) {
+              branchMembersCount = 1127;
+              branchRevenueFormatted = "PKR 18.1M";
+              branchTrainersCount = 10;
+              branchCapacity = 380;
+            } else if (b.name.includes("LuckyOne")) {
+              branchMembersCount = 1226;
+              branchRevenueFormatted = "PKR 14.9M";
+              branchTrainersCount = 10;
+              branchCapacity = 350;
+            }
 
             return (
               <div
@@ -311,27 +327,27 @@ export default function AdminNetworkPage() {
                   {/* Branch Metrics */}
                   <div className="grid grid-cols-2 gap-2.5 p-3 rounded-2xl bg-black/15 dark:bg-black/35 border border-[var(--card-border)] text-[11.5px] mb-3.5">
                     <div>
-                      <span className="text-[var(--muted)] text-[10px] font-bold tracking-wider block">MEMBERS</span>
+                      <span className="text-[var(--muted)] text-[10px] font-bold tracking-wider block">ACTIVE MEMBERS</span>
                       <span className="text-[15px] font-bold font-display text-[var(--text)]">
-                        {branchMembersCount} Active
+                        {branchMembersCount.toLocaleString()}
                       </span>
                     </div>
                     <div>
                       <span className="text-[var(--muted)] text-[10px] font-bold tracking-wider block">MONTHLY REV</span>
                       <span className="text-[15px] font-bold font-display text-[var(--accent)]">
-                        PKR {(branchRevenue / 1000).toFixed(0)}k
+                        {branchRevenueFormatted}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[var(--muted)] text-[10px] font-bold tracking-wider block">TRAINERS</span>
+                      <span className="text-[var(--muted)] text-[10px] font-bold tracking-wider block">COACHES</span>
                       <span className="text-[13px] font-semibold text-[var(--text)]">
                         {branchTrainersCount} Coaches
                       </span>
                     </div>
                     <div>
-                      <span className="text-[var(--muted)] text-[10px] font-bold tracking-wider block">CAPACITY</span>
+                      <span className="text-[var(--muted)] text-[10px] font-bold tracking-wider block">PEAK HOURLY</span>
                       <span className="text-[13px] font-semibold text-[var(--text)]">
-                        {b.capacity} Max
+                        {branchCapacity} Cap
                       </span>
                     </div>
                   </div>

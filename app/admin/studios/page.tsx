@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import { AdminPortalLayout } from "@/components/layout/AdminPortalLayout";
 import { useApolloStore, Member, GymClass } from "@/lib/apollo-demo-store";
 import {
@@ -682,14 +683,15 @@ export default function AdminStudiosPage() {
               <span>Export CSV</span>
             </button>
 
-            {/* Book Member Button */}
-            <button
-              onClick={() => setIsBookModalOpen(true)}
-              className="btn primary !h-[42px] !px-4 text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
+            {/* Yield Management Executive CTA: Monetize Reformer Waitlist */}
+            <Link
+              href="/admin/brain"
+              className="btn primary !h-[42px] !px-4 text-xs font-bold flex items-center gap-2 shadow-md cursor-pointer whitespace-nowrap bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black"
+              title="Pilates Reformer is 100% Full (14/14 beds + Waitlist) while Yoga is at 9%"
             >
-              <Plus className="w-4 h-4" />
-              <span>Book Member into Studio</span>
-            </button>
+              <Sparkles className="w-4 h-4 shrink-0" />
+              <span>Monetize Waitlist → Pitch TriFit Plus Upgrade</span>
+            </Link>
           </div>
         </div>
 

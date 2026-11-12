@@ -212,6 +212,32 @@ export default function AdminStaffPage() {
                         <span className="text-[var(--text)] font-bold">{coach.activeClientsCount || 28} Clients</span>
                       </div>
                       <div className="flex items-center justify-between">
+                        <span>Client Retention:</span>
+                        <span className={`font-bold ${
+                          coach.name.includes("Waleed")
+                            ? "text-rose-400"
+                            : coach.name.includes("Sarah")
+                            ? "text-emerald-400"
+                            : "text-[var(--text)]"
+                        }`}>
+                          {coach.name.includes("Waleed")
+                            ? "82.1% (Audit Flag)"
+                            : coach.name.includes("Sarah")
+                            ? "98.8% (Benchmark)"
+                            : "94.2%"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>3D-Scan → PT Upsell:</span>
+                        <span className="text-[var(--accent)] font-bold">
+                          {coach.name.includes("Waleed")
+                            ? "14.5%"
+                            : coach.name.includes("Sarah")
+                            ? "38.2%"
+                            : "31.4%"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
                         <span>Monthly PT Delivery:</span>
                         <span className="text-emerald-400 font-bold">64 Sessions</span>
                       </div>
