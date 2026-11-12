@@ -75,7 +75,7 @@ export default function GrowthAndLeakagePage() {
           <div className="glass p-4 rounded-xl">
             <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">Net Growth Velocity</div>
             <div className="text-2xl font-bold font-mono text-[var(--accent)] mt-1">+142 / mo</div>
-            <div className="text-[10px] text-emerald-400 mt-0.5">New joins outpace exits 2.4x</div>
+            <div className="text-[10px] text-emerald-400 mt-0.5">370 New Joins vs. 228 Exits (1.62x ratio)</div>
           </div>
           <div className="glass p-4 rounded-xl">
             <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">Total Leakage Rate</div>
@@ -92,9 +92,9 @@ export default function GrowthAndLeakagePage() {
             </div>
           </div>
           <div className="glass p-4 rounded-xl">
-            <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">Winback Success</div>
+            <div className="text-[11px] text-[var(--muted)] uppercase font-semibold">Post-Cancellation Win-Back</div>
             <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">34.6%</div>
-            <div className="text-[10px] text-emerald-400 mt-0.5">79 recovered via WhatsApp</div>
+            <div className="text-[10px] text-emerald-400 mt-0.5">79 reactivated after exit</div>
           </div>
         </div>
 

@@ -327,16 +327,16 @@ export function SubscriptionDonutChart({
           <div className="flex flex-col items-center text-center mt-2 min-h-[96px] justify-center transition-all duration-200">
             {activeDisplaySlice && (
               <div className="animate-in fade-in duration-150 flex flex-col items-center">
-                <span className="inline-block text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full mb-1 bg-white text-black font-mono shadow-xs border border-white/20">
+                <span className="inline-block text-[10.5px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full mb-1 bg-white text-black shadow-xs">
                   {activeDisplaySlice.shortName.toUpperCase()}
                 </span>
-                <div className="text-[32px] leading-tight font-black text-white font-mono tracking-tight my-0.5">
+                <div className="text-[34px] leading-tight font-black text-white tracking-tight my-0.5">
                   {activeDisplaySlice.percentage.toFixed(1)}%
                 </div>
-                <div className="text-[12px] font-bold text-gray-400 font-mono">
+                <div className="text-[13px] font-semibold text-gray-300">
                   {activeDisplaySlice.scaledCount.toLocaleString()} members
                 </div>
-                <div className="text-[11.5px] font-black text-[#F59E0B] font-mono tracking-wide mt-0.5">
+                <div className="text-[12px] font-black text-[#F59E0B] tracking-wide mt-0.5">
                   PKR {(activeDisplaySlice.pricePKR / 1000).toFixed(0)}k
                 </div>
               </div>

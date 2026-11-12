@@ -315,7 +315,7 @@ export default function AdminApolloBrainCrmPage() {
                 <span>AI CRM & Retention Radar</span>
               </h1>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                74.1% Recovery Rate
+                14-Day Early Absence Recovery: 74.1%
               </span>
             </div>
             <span className="text-xs text-[var(--muted)] mt-0.5 block">
@@ -681,7 +681,7 @@ export default function AdminApolloBrainCrmPage() {
                 <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">
                   218 Members
                 </div>
-                <div className="text-xs text-emerald-400 font-semibold mt-1">74.1% Recovery Rate</div>
+                <div className="text-xs text-emerald-400 font-semibold mt-1">74.1% Saved Before Cancellation</div>
               </div>
 
               <div className="glass p-5 rounded-2xl">
