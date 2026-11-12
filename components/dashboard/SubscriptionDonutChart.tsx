@@ -324,15 +324,15 @@ export function SubscriptionDonutChart({
 
             {/* CENTER DONUT HOLE SUMMARY (Clean Active Count) */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2 pointer-events-none transition-all duration-200">
-              <span className="body-label text-[9.5px] font-bold uppercase tracking-widest text-[var(--muted)]">
+              <span className="text-[11px] font-black uppercase tracking-widest text-[var(--accent)] drop-shadow-xs">
                 Total Active
               </span>
-              <div className="kpi-value text-[24px] leading-none text-[var(--text)] font-black my-1 font-mono">
+              <div className="kpi-value text-[26px] leading-tight text-[var(--text)] font-black my-0.5 font-mono">
                 {totalMembersCount.toLocaleString()}
               </div>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--accent)]">
+              <span className="text-[11px] font-semibold text-[var(--muted)] flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
-                TriFit Plans
+                Active Members
               </span>
             </div>
           </div>

@@ -154,11 +154,21 @@ export function MemberPerformanceDistribution({ selectedCategory = "ALL", onSele
 
           {/* Central Telemetry readout */}
           <div className="absolute flex flex-col items-center justify-center text-center pointer-events-none">
-            <span className="text-[10.5px] font-mono text-[var(--muted)] uppercase tracking-wider">Cohort</span>
-            <span className="text-xl font-bold font-mono text-[var(--text)]">{activeCohort.percentage}%</span>
-            <span className="text-[11px] font-semibold" style={{ color: activeCohort.color }}>
-              {activeCohort.label}
-            </span>
+            {hoveredKey ? (
+              <>
+                <span className="text-[10px] font-mono text-[var(--muted)] uppercase tracking-wider">Cohort</span>
+                <span className="text-2xl font-black font-mono text-[var(--text)]">{activeCohort.percentage}%</span>
+                <span className="text-[11px] font-bold" style={{ color: activeCohort.color }}>
+                  {activeCohort.label}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-[10.5px] font-black font-mono text-[var(--accent)] uppercase tracking-wider">Total Active</span>
+                <span className="text-2xl font-black font-mono text-[var(--text)]">{totalMembers.toLocaleString()}</span>
+                <span className="text-[11px] font-semibold text-[var(--muted)]">Members</span>
+              </>
+            )}
           </div>
         </div>
 
