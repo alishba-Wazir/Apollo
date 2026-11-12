@@ -177,6 +177,40 @@ export default function MemberDetailPage() {
           </div>
         </div>
 
+        {/* HIGH-CONTRAST GOLD CARD: AI NEXT-BEST-OFFER (UPSELL MATCH 94% PROPENSITY) */}
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[var(--accent)]/15 to-amber-600/20 border-2 border-[var(--accent)] shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-3xl">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-mono font-black uppercase tracking-wider bg-[var(--accent)] text-[var(--on-accent)] shadow-sm">
+                AI Next-Best-Offer
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                94% Upsell Propensity
+              </span>
+              <span className="text-xs font-mono font-bold text-amber-300">
+                +PKR 118,000 Net LTV
+              </span>
+            </div>
+            <p className="text-xs sm:text-[13px] text-[var(--text)] font-medium leading-relaxed">
+              <strong>{member.name}</strong> checks in <strong>4.2x/wk</strong> on a Regular plan and has plateaued at <strong>21.1% body fat</strong> over 2 Forma scans. Pitch <strong>TriFit Plus 12M + 12 PT Hypertrophy Sessions (Coach Tariq)</strong> → +PKR 118,000 Net LTV.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              const msg = encodeURIComponent(
+                `Salam ${member.name}! Coach Tariq has reviewed your consistent 4.2x/wk attendance and Forma 3D scan at TriFit. You have unlocked our VIP Upgrade: TriFit Plus 12-Month Membership + 12 1-on-1 PT Hypertrophy Sessions with 50% discount (+PKR 118,000 net value). Reply YES to lock in today!`
+              );
+              window.open(`https://wa.me/${member.phone.replace(/[^0-9]/g, "")}?text=${msg}`, "_blank");
+            }}
+            className="btn primary !py-2.5 !px-5 text-xs font-black shrink-0 flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Send className="w-4 h-4" />
+            <span>1-Click Send WhatsApp Offer</span>
+          </button>
+        </div>
+
         {/* Top 4 Realtime Telemetry Stats (Obsidian HUD) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div className="glass p-4 rounded-xl">

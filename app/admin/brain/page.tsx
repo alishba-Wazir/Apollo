@@ -27,6 +27,7 @@ import {
   Phone,
   BarChart3,
   Calendar,
+  ScanLine,
 } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
@@ -73,8 +74,11 @@ interface TechGisRewardTrigger {
 }
 
 export default function AdminApolloBrainCrmPage() {
+  const [topModule, setTopModule] = useState<"RETENTION" | "UPSELL">("RETENTION");
   const [activeTab, setActiveTab] = useState<"radar" | "renewals" | "whatsapp" | "techgis">("radar");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [preservedValuePKR, setPreservedValuePKR] = useState(1840000);
+  const [approvedUpsellIds, setApprovedUpsellIds] = useState<Record<string, boolean>>({});
 
   // Renewals State
   const [renewalsData, setRenewalsData] = useState<any>(null);
@@ -144,7 +148,7 @@ export default function AdminApolloBrainCrmPage() {
       branch: "TRI FIT Seaview Flagship",
       daysAbsent: 16,
       baselineVisitsPerWeek: 4,
-      tier: "Black Diamond VIP",
+      tier: "TriFit Plus (12M)",
       churnProbability: 88,
       rootCause: "Post-travel inertia. Previously trained with Coach Faraz on leg press.",
       status: "MESSAGE_DRAFTED",
@@ -156,7 +160,7 @@ export default function AdminApolloBrainCrmPage() {
       branch: "TRI FIT LuckyOne Mall",
       daysAbsent: 19,
       baselineVisitsPerWeek: 3,
-      tier: "Executive Gold",
+      tier: "TriFit Regular (6M)",
       churnProbability: 92,
       rootCause: "Work schedule conflict during peak evening turnstile hours.",
       status: "MESSAGE_DRAFTED",
@@ -168,7 +172,7 @@ export default function AdminApolloBrainCrmPage() {
       branch: "TRI FIT AJ Tower (Islamabad)",
       daysAbsent: 22,
       baselineVisitsPerWeek: 5,
-      tier: "Prime Annual",
+      tier: "TriFit Regular (3M)",
       churnProbability: 95,
       rootCause: "Spin studio pass expired; absence correlates with cancellation risk.",
       status: "MESSAGE_DRAFTED",
@@ -192,7 +196,7 @@ export default function AdminApolloBrainCrmPage() {
       branch: "TRI FIT Seaview Flagship",
       daysAbsent: 17,
       baselineVisitsPerWeek: 4,
-      tier: "Black Diamond VIP",
+      tier: "TriFit Plus (12M)",
       churnProbability: 84,
       rootCause: "Shoulder strain logged 18 days ago. Needs recovery therapy touchpoint.",
       status: "MESSAGE_DRAFTED",
@@ -285,7 +289,9 @@ export default function AdminApolloBrainCrmPage() {
         p.id === id ? { ...p, status: "QUEUED_QUIET_HOURS" } : p
       )
     );
-    showNotification(`Approved message for ${name}. Queued for dispatch at 07:01 PKT (respecting quiet hours).`);
+    // Animate top Preserved Subscription Value counter ticking up live (+PKR 155,999)
+    setPreservedValuePKR((prev) => prev + 155999);
+    showNotification(`Approved message for ${name}. +PKR 155,999 preserved! Queued for dispatch at 07:01 PKT (respecting quiet hours).`);
   };
 
   const handleDispatchReward = (id: string, name: string) => {
@@ -332,25 +338,55 @@ export default function AdminApolloBrainCrmPage() {
           </div>
         )}
 
-        {/* Quiet Hours Banner */}
-        <div className="glass p-4 rounded-2xl border border-[var(--accent)]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[var(--chip)] border border-[var(--accent)]/30 flex items-center justify-center shrink-0">
-              <Moon className="w-4 h-4 text-[var(--accent)]" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-[var(--text)]">
-                🌙 PKT Quiet Hours Active: 22:00 – 07:00 PKT
-              </h4>
-              <p className="text-xs text-[var(--muted)] mt-0.5">
-                Strict cultural and ethical AI safety rule: All outbound member WhatsApp messages are silenced during resting hours. Approved win-backs dispatch at 07:01 PKT.
-              </p>
-            </div>
-          </div>
-          <span className="text-[11px] font-mono font-bold text-[var(--accent)] bg-[var(--card)] border border-[var(--line)] px-2.5 py-1 rounded-lg shrink-0">
-            0 Messages Sent at Night
-          </span>
+        {/* EXECUTIVE PRIMARY TABS: TAB A (RETENTION) VS TAB B (UPSELL & LOCK-IN) */}
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl glass border border-[var(--line)]">
+          <button
+            type="button"
+            onClick={() => setTopModule("RETENTION")}
+            className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              topModule === "RETENTION"
+                ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-md"
+                : "text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--card)]"
+            }`}
+          >
+            <Activity className="w-4 h-4 shrink-0" />
+            <span>Tab A: Churn Win-Back Radar (294 Flagged)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setTopModule("UPSELL")}
+            className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              topModule === "UPSELL"
+                ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-md"
+                : "text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--card)]"
+            }`}
+          >
+            <Zap className="w-4 h-4 shrink-0" />
+            <span>Tab B: Subscriber Upsell & Lock-In Engine (612 Ready to Upgrade)</span>
+          </button>
         </div>
+
+        {topModule === "RETENTION" && (
+          <div className="space-y-5">
+            {/* Quiet Hours Banner */}
+            <div className="glass p-4 rounded-2xl border border-[var(--accent)]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-[var(--chip)] border border-[var(--accent)]/30 flex items-center justify-center shrink-0">
+                  <Moon className="w-4 h-4 text-[var(--accent)]" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[var(--text)]">
+                    🌙 PKT Quiet Hours Active: 22:00 – 07:00 PKT
+                  </h4>
+                  <p className="text-xs text-[var(--muted)] mt-0.5">
+                    Strict cultural and ethical AI safety rule: All outbound member WhatsApp messages are silenced during resting hours. Approved win-backs dispatch at 07:01 PKT.
+                  </p>
+                </div>
+              </div>
+              <span className="text-[11px] font-mono font-bold text-[var(--accent)] bg-[var(--card)] border border-[var(--line)] px-2.5 py-1 rounded-lg shrink-0">
+                0 Messages Sent at Night
+              </span>
+            </div>
 
         {/* 3 Horizontal Sub-Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-[var(--line)] pb-2 overflow-x-auto scrollbar-none">
@@ -652,8 +688,13 @@ export default function AdminApolloBrainCrmPage() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">
                   Preserved Subscription Value
                 </span>
-                <div className="text-2xl font-bold font-mono text-[var(--text)] mt-1">
-                  PKR 1.84M
+                <div className="text-2xl font-bold font-mono text-emerald-400 mt-1 flex items-baseline gap-1.5">
+                  <span>PKR {(preservedValuePKR / 1000000).toFixed(2)}M</span>
+                  {preservedValuePKR > 1840000 && (
+                    <span className="text-[10px] font-sans px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
+                      +{(preservedValuePKR - 1840000).toLocaleString()}
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-emerald-400 font-semibold mt-1">Direct LTV Saved</div>
               </div>
@@ -922,6 +963,261 @@ export default function AdminApolloBrainCrmPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+          </div>
+        )}
+
+        {/* =========================================================================
+            TOP MODULE B: SUBSCRIBER UPSELL & LOCK-IN ENGINE (612 READY TO UPGRADE)
+           ========================================================================= */}
+        {topModule === "UPSELL" && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* KPI Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="glass p-5 rounded-2xl">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                  3M → 12M Upgrade Candidates
+                </span>
+                <div className="text-2xl font-bold font-mono text-[var(--accent)] mt-1">
+                  1,602 Members
+                </div>
+                <div className="text-xs text-[var(--muted)] mt-1">Month 2 • &gt;3.5x/wk visits</div>
+              </div>
+              <div className="glass p-5 rounded-2xl">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                  Forma 3D Plateau Pool
+                </span>
+                <div className="text-2xl font-bold font-mono text-purple-400 mt-1">
+                  810 Members
+                </div>
+                <div className="text-xs text-[var(--muted)] mt-1">&lt;0.5% fat loss over 2 scans</div>
+              </div>
+              <div className="glass p-5 rounded-2xl">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                  Corporate & Bank Card Expiries
+                </span>
+                <div className="text-2xl font-bold font-mono text-sky-400 mt-1">
+                  428 Members
+                </div>
+                <div className="text-xs text-[var(--muted)] mt-1">JS Bank (30-40%) & ICAP</div>
+              </div>
+              <div className="glass p-5 rounded-2xl">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                  Net AI Upsell Pipeline
+                </span>
+                <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">
+                  PKR 8.39M
+                </div>
+                <div className="text-xs text-emerald-400 font-semibold mt-1">21.0x Apollo System ROI</div>
+              </div>
+            </div>
+
+            {/* Forma 3D Scan → PT Upsell Funnel Telemetry */}
+            <div className="glass p-5 rounded-2xl space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="card-title text-[var(--text)] flex items-center gap-2">
+                    <ScanLine className="w-4 h-4 text-cyan-400" />
+                    <span>Forma 3D Kiosk Telemetry → PT Upsell Pipeline</span>
+                  </h3>
+                  <p className="body-label text-xs text-[var(--muted)] mt-0.5">
+                    Real-time conversion funnel from hardware kiosk scans to high-margin Personal Training packages
+                  </p>
+                </div>
+                <span className="admin-chip text-[11px] font-mono text-cyan-400 border-cyan-500/30">
+                  Hardware Live: 4 Flagships
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                <div className="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--line)]">
+                  <div className="text-[10px] uppercase font-bold text-[var(--muted)]">1. Scans Completed</div>
+                  <div className="text-xl font-bold font-mono text-[var(--text)] mt-1">1,420 Scans</div>
+                  <div className="text-[10.5px] text-[var(--muted)] mt-0.5">30-day network total</div>
+                </div>
+                <div className="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--line)]">
+                  <div className="text-[10px] uppercase font-bold text-[var(--muted)]">2. Plateaus Detected</div>
+                  <div className="text-xl font-bold font-mono text-purple-400 mt-1">482 (34%)</div>
+                  <div className="text-[10.5px] text-[var(--muted)] mt-0.5">&lt;0.5% body fat reduction</div>
+                </div>
+                <div className="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--line)]">
+                  <div className="text-[10px] uppercase font-bold text-[var(--muted)]">3. PT Sessions Booked</div>
+                  <div className="text-xl font-bold font-mono text-emerald-400 mt-1">121 Booked</div>
+                  <div className="text-[10.5px] text-emerald-400 mt-0.5">25.1% diagnostic attach rate</div>
+                </div>
+                <div className="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--line)]">
+                  <div className="text-[10px] uppercase font-bold text-[var(--accent)] mt-1">PKR 5.80M</div>
+                  <div className="text-[10.5px] text-[var(--accent)] mt-0.5">PT packages + Annual lock-in</div>
+                </div>
+              </div>
+            </div>
+
+            {/* The 3 Actionable Upsell Buckets */}
+            <div className="space-y-4">
+              <h3 className="card-title text-[var(--text)] text-sm uppercase tracking-wider text-[var(--muted)]">
+                Active AI Upsell & Lock-In Opportunities (612 Ready to Dispatch)
+              </h3>
+
+              {/* Bucket 1: Quarterly-to-Annual Lock-In */}
+              <div className="glass p-5 rounded-2xl space-y-3 hover:border-[var(--accent)]/40 transition-all">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-[var(--line)]">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 font-mono">
+                        BUCKET 1: 3M → 12M ANNUAL LOCK-IN
+                      </span>
+                      <h4 className="font-bold text-sm text-[var(--text)]">Zaid Khan (Seaview DHA)</h4>
+                      <span className="text-xs text-[var(--accent)] font-mono">0300-8219472</span>
+                    </div>
+                    <div className="text-xs text-[var(--muted)] mt-1">
+                      Currently on <strong className="text-[var(--text)]">TriFit Regular 3M</strong> (PKR 52,999) • Month 2 of 3 • 4.2x/wk high attendance.
+                    </div>
+                  </div>
+                  <span className="admin-chip text-emerald-400 border-emerald-500/30 text-[10.5px]">
+                    +PKR 80,000 Upfront Cash
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-[var(--card)] border border-[var(--line)] text-xs text-[var(--text)]">
+                  <div className="text-[10.5px] font-bold text-[var(--accent)] uppercase tracking-wider mb-1">
+                    Personalized WhatsApp Pitch:
+                  </div>
+                  <p>
+                    "Salam Zaid! Coach Tariq has noticed your incredible 4.2x/wk discipline at Seaview DHA. As a top 5% active member, you are eligible to roll your remaining Month 3 balance into our TriFit Plus 12-Month VIP tier with 12 free PT sessions and multi-club passport access. Lock in for 12 months today for just PKR 80,000 net adjustment."
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-[var(--muted)]">Locks in 9 additional months of retention</span>
+                  {approvedUpsellIds["upsell-1"] ? (
+                    <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>WhatsApp Offer Dispatched (+PKR 80,000)</span>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setApprovedUpsellIds((prev) => ({ ...prev, "upsell-1": true }));
+                        setPreservedValuePKR((prev) => prev + 80000);
+                        showNotification("1-Click WhatsApp offer dispatched to Zaid Khan (+PKR 80,000 locked in)!");
+                      }}
+                      className="btn primary !py-1.5 !px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>1-Click Dispatch WhatsApp Offer (+PKR 80k)</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Bucket 2: Forma 3D Plateau-to-PT Upsell */}
+              <div className="glass p-5 rounded-2xl space-y-3 hover:border-[var(--accent)]/40 transition-all">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-[var(--line)]">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/20 text-purple-300 font-mono">
+                        BUCKET 2: FORMA 3D PLATEAU → PT UPSELL
+                      </span>
+                      <h4 className="font-bold text-sm text-[var(--text)]">Bilal Tariq (Clifton Flagship)</h4>
+                      <span className="text-xs text-[var(--accent)] font-mono">0321-9988112</span>
+                    </div>
+                    <div className="text-xs text-[var(--muted)] mt-1">
+                      Body fat unchanged at <strong className="text-rose-400">22.4% over last 2 scans</strong> • Attends 3x/wk but zero progressive overload.
+                    </div>
+                  </div>
+                  <span className="admin-chip text-emerald-400 border-emerald-500/30 text-[10.5px]">
+                    +PKR 55,000 PT Bundle
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-[var(--card)] border border-[var(--line)] text-xs text-[var(--text)]">
+                  <div className="text-[10.5px] font-bold text-purple-400 uppercase tracking-wider mb-1">
+                    Forma 3D Diagnostic PT Offer:
+                  </div>
+                  <p>
+                    "Salam Bilal! Your Forma 3D Bio-Scan shows consistent effort but your fat loss has plateaued at 22.4% over 60 days. Master Coach Sarah has reviewed your posture telemetry and designed a 4-week Hypertrophy Breakout. Book your 1-on-1 PT consultation today + get 50% off your next annual renewal!"
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-[var(--muted)]">Overcomes churn driver: #3 Plateaued / Poor Results</span>
+                  {approvedUpsellIds["upsell-2"] ? (
+                    <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>PT Diagnostic Dispatched (+PKR 55,000)</span>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setApprovedUpsellIds((prev) => ({ ...prev, "upsell-2": true }));
+                        setPreservedValuePKR((prev) => prev + 55000);
+                        showNotification("Forma 3D PT Breakout offer dispatched to Bilal Tariq (+PKR 55,000)!");
+                      }}
+                      className="btn primary !py-1.5 !px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Dispatch PT Diagnostic Offer (+PKR 55k)</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Bucket 3: Corporate & Bank Card Renewal Engine */}
+              <div className="glass p-5 rounded-2xl space-y-3 hover:border-[var(--accent)]/40 transition-all">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-[var(--line)]">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-500/20 text-sky-300 font-mono">
+                        BUCKET 3: JS BANK & ICAP RENEWAL LOCK
+                      </span>
+                      <h4 className="font-bold text-sm text-[var(--text)]">Mariam Farooq (AJ Tower Islamabad)</h4>
+                      <span className="text-xs text-[var(--accent)] font-mono">0333-8899221</span>
+                    </div>
+                    <div className="text-xs text-[var(--muted)] mt-1">
+                      Enrolled via <strong className="text-[var(--text)]">JS Bank Visa Platinum (35% Partner Discount)</strong> • Expires in 21 days.
+                    </div>
+                  </div>
+                  <span className="admin-chip text-emerald-400 border-emerald-500/30 text-[10.5px]">
+                    +PKR 101,399 Renewal Lock
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-[var(--card)] border border-[var(--line)] text-xs text-[var(--text)]">
+                  <div className="text-[10.5px] font-bold text-sky-400 uppercase tracking-wider mb-1">
+                    Automated Bank Partner Renewal:
+                  </div>
+                  <p>
+                    "Dear Mariam, your TriFit Plus membership via JS Bank Visa Platinum renews in 21 days. Enjoy your exclusive 35% discount (PKR 101,399 instead of PKR 155,999) with seamless 1-click renewal and automated gym turnstile pass re-activation."
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-[var(--muted)]">Retains high-value corporate cardholder</span>
+                  {approvedUpsellIds["upsell-3"] ? (
+                    <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Partner Renewal Locked (+PKR 101,399)</span>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setApprovedUpsellIds((prev) => ({ ...prev, "upsell-3": true }));
+                        setPreservedValuePKR((prev) => prev + 101399);
+                        showNotification("JS Bank Partner renewal dispatched to Mariam Farooq (+PKR 101,399)!");
+                      }}
+                      className="btn primary !py-1.5 !px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Lock In JS Bank Renewal (+PKR 101k)</span>
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}

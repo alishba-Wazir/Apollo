@@ -323,45 +323,21 @@ export function SubscriptionDonutChart({
             </svg>
           </div>
 
-          {/* SIMPLE TELEMETRY BELOW THE DONUT (NO CARD BOX, CLEAN DISPLAY) */}
-          <div className="flex flex-col items-center text-center mt-1 min-h-[72px] justify-center transition-all duration-200">
-            {hoveredSlice ? (
+          {/* SIMPLE TELEMETRY BELOW THE DONUT (MATCHING EXACT VISUAL SPEC: NO CARD BOX, CLEAN STACKED METRICS) */}
+          <div className="flex flex-col items-center text-center mt-2 min-h-[96px] justify-center transition-all duration-200">
+            {activeDisplaySlice && (
               <div className="animate-in fade-in duration-150 flex flex-col items-center">
-                <span
-                  className="inline-block text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1 shadow-xs"
-                  style={{
-                    background: hoveredSlice.color === "#FFFFFF" ? "#FFFFFF" : hoveredSlice.color,
-                    color:
-                      hoveredSlice.color === "#FFFFFF" ||
-                      hoveredSlice.color === "#FFD60A" ||
-                      hoveredSlice.color === "#FBBF24" ||
-                      hoveredSlice.color === "#F59E0B"
-                        ? "#0A0A0C"
-                        : "#FFFFFF",
-                  }}
-                >
-                  {hoveredSlice.shortName}
+                <span className="inline-block text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full mb-1 bg-white text-black font-mono shadow-xs border border-white/20">
+                  {activeDisplaySlice.shortName.toUpperCase()}
                 </span>
-                <div className="text-[28px] leading-tight font-black text-[var(--text)] font-mono tracking-tight my-0.5">
-                  {hoveredSlice.percentage.toFixed(1)}%
+                <div className="text-[32px] leading-tight font-black text-white font-mono tracking-tight my-0.5">
+                  {activeDisplaySlice.percentage.toFixed(1)}%
                 </div>
-                <div className="text-[11px] font-semibold text-[var(--muted)] flex items-center gap-1.5 font-mono">
-                  <span>{hoveredSlice.scaledCount.toLocaleString()} members</span>
-                  <span>•</span>
-                  <span className="text-[#F59E0B] font-bold">PKR {(hoveredSlice.pricePKR / 1000).toFixed(0)}k</span>
+                <div className="text-[12px] font-bold text-gray-400 font-mono">
+                  {activeDisplaySlice.scaledCount.toLocaleString()} members
                 </div>
-              </div>
-            ) : (
-              <div className="animate-in fade-in duration-150 flex flex-col items-center">
-                <span className="text-[11px] font-black uppercase tracking-widest text-[var(--accent)]">
-                  Total Active
-                </span>
-                <div className="text-[32px] leading-none text-[var(--text)] font-black my-1 font-mono tracking-tight">
-                  {totalMembersCount.toLocaleString()}
-                </div>
-                <div className="text-[11px] font-semibold text-[var(--muted)] flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
-                  <span>Active Members across Plans</span>
+                <div className="text-[11.5px] font-black text-[#F59E0B] font-mono tracking-wide mt-0.5">
+                  PKR {(activeDisplaySlice.pricePKR / 1000).toFixed(0)}k
                 </div>
               </div>
             )}

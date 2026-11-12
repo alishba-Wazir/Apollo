@@ -55,40 +55,23 @@ export interface NavGroup {
 
 export const ADMIN_NAV_GROUPS: NavGroup[] = [
   {
-    label: "Executive & Analytics",
+    label: "Executive Intelligence (8 Core Modules)",
     items: [
       { id: "overview", label: "Executive Cockpit", href: "/admin", icon: LayoutDashboard },
-      { id: "growth", label: "Growth & Leakage", href: "/admin/growth", icon: TrendingUp, badge: "Pace" },
-      { id: "sales", label: "Sales & Leads", href: "/admin/sales", icon: Users, badge: "Kanban" },
-    ],
-  },
-  {
-    label: "People & Accountability",
-    items: [
+      { id: "brain", label: "AI Retention & Upsell Brain", href: "/admin/brain", icon: BrainCircuit, badge: "21.0x ROI" },
+      { id: "growth", label: "Growth & Leakage", href: "/admin/growth", icon: TrendingUp, badge: "108% Pace" },
+      { id: "sales", label: "Sales & Pipeline", href: "/admin/sales", icon: Users, badge: "Kanban" },
       { id: "members", label: "Members CRM", href: "/admin/members", icon: Users },
-      { id: "staff", label: "Staff & Coaches", href: "/admin/staff", icon: Dumbbell, badge: "REPs L3" },
+      { id: "staff", label: "Staff & Master Coaches", href: "/admin/staff", icon: Dumbbell, badge: "REPs L3" },
+      { id: "finance", label: "Finance & Ledger", href: "/admin/finance", icon: CreditCard, badge: "PKR 82.4M" },
+      { id: "network", label: "Flagship Network", href: "/admin/network", icon: ReceiptText, badge: "4 Clubs" },
     ],
   },
   {
-    label: "Physical Operations",
+    label: "Yield & Platform Operations",
     items: [
-      { id: "studios", label: "Signature Studios", href: "/admin/studios", icon: Flame, badge: "5 Studios" },
-      { id: "kiosks", label: "Forma 3D Kiosks", href: "/admin/kiosks", icon: ScanLine, badge: "Hardware" },
-      { id: "inventory", label: "Fuel Bar Inventory", href: "/admin/inventory", icon: CupSoda },
-    ],
-  },
-  {
-    label: "Finance & AI Engine",
-    items: [
-      { id: "finance", label: "Finance & Ledger", href: "/admin/finance", icon: CreditCard },
-      { id: "brain", label: "AI Retention Brain", href: "/admin/brain", icon: BrainCircuit, badge: "AI" },
-    ],
-  },
-  {
-    label: "Enterprise Infrastructure",
-    items: [
-      { id: "network", label: "Flagship Network", href: "/admin/network", icon: ReceiptText },
-      { id: "settings", label: "Plans & System", href: "/admin/settings", icon: SlidersHorizontal },
+      { id: "studios", label: "Studio Yield & Waitlists", href: "/admin/studios", icon: Flame, badge: "Pilates 100%" },
+      { id: "settings", label: "Plans, Kiosks & System", href: "/admin/settings", icon: SlidersHorizontal },
     ],
   },
 ];

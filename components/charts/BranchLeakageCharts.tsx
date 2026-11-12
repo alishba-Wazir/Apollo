@@ -51,9 +51,26 @@ const BRANCH_LEAKAGE_DATA: BranchLeakage[] = [
   { branchId: "seaview", name: "Seaview DHA Karachi", lostMembers: 73, leakageRate: 2.8, mrrLostPKR: 620000 },
 ];
 
-export function BranchLeakageCharts() {
+interface BranchLeakageChartsProps {
+  reassignedWaleed?: boolean;
+  onExecuteReassignment?: () => void;
+  onActionClick?: (msg: string) => void;
+}
+
+export function BranchLeakageCharts({
+  reassignedWaleed = false,
+  onExecuteReassignment,
+  onActionClick,
+}: BranchLeakageChartsProps) {
   const [activeReason, setActiveReason] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<"TRAINERS" | "BRANCHES">("TRAINERS");
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
+
+  const triggerAction = (msg: string) => {
+    setActionNotice(msg);
+    setTimeout(() => setActionNotice(null), 3500);
+    if (onActionClick) onActionClick(msg);
+  };
 
   // SVG Donut calculation
   const totalChurn = CHURN_REASONS.reduce((acc, r) => acc + r.count, 0);
@@ -120,8 +137,15 @@ export function BranchLeakageCharts() {
           </div>
         </div>
 
-        {/* Reason Legend List */}
+        {/* Reason Legend List with Actionable Save Flows */}
         <div className="space-y-2 pt-2 border-t border-[var(--line)] text-xs">
+          {actionNotice && (
+            <div className="p-2 rounded-lg bg-[var(--chip)] border border-[var(--accent)] text-[11px] text-[var(--accent)] font-semibold flex items-center gap-1.5 animate-in fade-in">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              <span>{actionNotice}</span>
+            </div>
+          )}
+
           {CHURN_REASONS.map((item) => {
             const isSelected = activeReason === item.id;
             return (
@@ -129,18 +153,45 @@ export function BranchLeakageCharts() {
                 key={item.id}
                 onMouseEnter={() => setActiveReason(item.id)}
                 onMouseLeave={() => setActiveReason(null)}
-                className={`flex items-center justify-between p-2 rounded-xl transition-all cursor-pointer ${
+                className={`p-2 rounded-xl transition-all ${
                   isSelected ? "bg-[var(--chip)] shadow-xs" : "hover:bg-[var(--card)]"
                 }`}
               >
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
-                  <span className="text-[var(--text)] truncate font-medium">{item.reason}</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
+                    <span className="text-[var(--text)] truncate font-bold">{item.reason}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 font-mono">
+                    <span className="text-[var(--muted)]">{item.count} users</span>
+                    <span className="font-bold text-[var(--text)]">{item.percentage}%</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0 font-mono">
-                  <span className="text-[var(--muted)]">{item.count} users</span>
-                  <span className="font-bold text-[var(--text)]">{item.percentage}%</span>
-                </div>
+
+                {/* Actionable Save/Down-Tier Flows */}
+                {item.id === "fin" && (
+                  <div className="mt-1.5 pt-1.5 border-t border-[var(--line)]/50 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => triggerAction("Dispatched Auto-Offer: Down-Tier to Regular 12M or JS Bank 30% Partner Rate!")}
+                      className="text-[10px] font-bold px-2 py-1 rounded-lg bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 border border-amber-500/30 transition-all cursor-pointer"
+                    >
+                      Auto-Offer Down-Tier to Regular 12M or JS Bank 30% Partner Rate →
+                    </button>
+                  </div>
+                )}
+
+                {item.id === "reloc" && (
+                  <div className="mt-1.5 pt-1.5 border-t border-[var(--line)]/50 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => triggerAction("Dispatched Offer: Paid Membership Freeze or Islamabad/Karachi Passport Transfer!")}
+                      className="text-[10px] font-bold px-2 py-1 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 border border-sky-500/30 transition-all cursor-pointer"
+                    >
+                      Offer Paid Membership Freeze or Islamabad/Karachi Passport Transfer →
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -197,35 +248,45 @@ export function BranchLeakageCharts() {
         {activeView === "TRAINERS" ? (
           <div className="space-y-3 py-1">
             {TRAINER_CHURN_DATA.map((t) => {
-              const barColor =
-                t.status === "CRITICAL"
-                  ? "bg-red-500"
-                  : t.status === "ELEVATED"
-                  ? "bg-amber-500"
-                  : "bg-emerald-500";
+              const isWaleed = t.id === "t-1";
+              const isReassigned = isWaleed && reassignedWaleed;
+
+              const barColor = isReassigned
+                ? "bg-emerald-500"
+                : t.status === "CRITICAL"
+                ? "bg-red-500"
+                : t.status === "ELEVATED"
+                ? "bg-amber-500"
+                : "bg-emerald-500";
 
               return (
                 <div key={t.id} className="p-3 rounded-xl bg-[var(--card)] border border-[var(--line)] hover:border-[var(--card-border)] transition-all">
-                  <div className="flex items-center justify-between text-xs mb-1.5">
+                  <div className="flex items-center justify-between text-xs mb-1.5 flex-wrap gap-1">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-[var(--text)]">{t.name}</span>
                       <span className="text-[11px] text-[var(--muted)]">({t.specialty})</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-mono text-[var(--muted)]">
-                        {t.cancellations} cancels / {t.activeClients} clients
+                        {isReassigned ? "0 cancels / 18 clients" : `${t.cancellations} cancels / ${t.activeClients} clients`}
                       </span>
-                      <span
-                        className={`px-2 py-0.5 rounded-md text-[10.5px] font-mono font-bold ${
-                          t.status === "CRITICAL"
-                            ? "bg-red-500/20 text-red-400"
-                            : t.status === "ELEVATED"
-                            ? "bg-amber-500/20 text-amber-400"
-                            : "bg-emerald-500/20 text-emerald-400"
-                        }`}
-                      >
-                        {t.churnRate}% Churn
-                      </span>
+                      {isReassigned ? (
+                        <span className="px-2 py-0.5 rounded-md text-[10.5px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                          14 Clients Reassigned • Audit Scheduled
+                        </span>
+                      ) : (
+                        <span
+                          className={`px-2 py-0.5 rounded-md text-[10.5px] font-mono font-bold ${
+                            t.status === "CRITICAL"
+                              ? "bg-red-500/20 text-red-400"
+                              : t.status === "ELEVATED"
+                              ? "bg-amber-500/20 text-amber-400"
+                              : "bg-emerald-500/20 text-emerald-400"
+                          }`}
+                        >
+                          {t.churnRate}% Churn
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -233,7 +294,7 @@ export function BranchLeakageCharts() {
                   <div className="w-full bg-[var(--track)] h-2 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-700 ${barColor}`}
-                      style={{ width: `${Math.min(t.churnRate * 4, 100)}%` }}
+                      style={{ width: `${isReassigned ? 15 : Math.min(t.churnRate * 4, 100)}%` }}
                     />
                   </div>
                 </div>
@@ -276,14 +337,21 @@ export function BranchLeakageCharts() {
             <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
             <span>AI recommendation: Reassign 14 at-risk clients under Coach Waleed to Coach Sarah.</span>
           </div>
-          <button
-            type="button"
-            className="btn !py-1 !px-3 text-xs shrink-0 flex items-center gap-1.5"
-            onClick={() => alert("Intervention triggered: At-risk members queued for VIP coaching review.")}
-          >
-            <span>Execute Reassignment</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          {reassignedWaleed ? (
+            <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold flex items-center gap-1.5 border border-emerald-500/30">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>14 Clients Reassigned (-PKR 490k Risk)</span>
+            </span>
+          ) : (
+            <button
+              type="button"
+              className="btn primary !py-1.5 !px-3.5 text-xs shrink-0 flex items-center gap-1.5 cursor-pointer font-bold"
+              onClick={onExecuteReassignment}
+            >
+              <span>Execute Reassignment</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </div>
